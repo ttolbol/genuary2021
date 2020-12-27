@@ -1,0 +1,35 @@
+* {
+    color: #FFF;
+    font-family: 'Roboto Mono', monospace;
+}
+
+body {
+    background-color: #034;
+}
+
+h1 {
+    text-shadow: 0 0 5px #00FFFF;
+}
+
+table.calendar {
+    box-shadow: 0 2px 5px rgba(0,0,0, 0.5);
+}
+
+table.calendar td {
+    text-align: center;
+    font-size: 1.2em;
+    width: 64px;
+    height: 64px;
+    color: #6C6C6C;
+    padding-top: 16px;
+}
+
+table.calendar td a {
+    margin-top: 3px;
+    text-decoration: none;
+    color: #FFF;
+}
+
+table.calendar td a:hover {
+    text-shadow: 0 0 12px #FFFFFF, 0 0 8px #FFFFFF;
+}
