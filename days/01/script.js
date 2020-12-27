@@ -1,8 +1,11 @@
+// TRIPLE NESTED LOOP
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const sqrt2 = Math.sqrt(2)
 
 config = {
+    start_angle: 0,
     starts: 3,
     strands: 180,
     steps: 300,
@@ -14,14 +17,26 @@ config = {
     hue_variance: 150
 };
 
+config_limits = {
+    start_angle: [0, 360, 'float'],
+    starts: [1, 6, 'int'],
+    turns: [0, 5, 'float'],
+    width: [15, 60, 'float'],
+    twists: [0, 30, 'float'],
+    twirl: [-1, 1, 'float'],
+    hue_start: [0, 360, 'float'],
+    hue_variance: [0, 360, 'float']
+};
+
 function draw(ctx, config) {
+    console.time('draw');
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     for (let start = 0; start < config.starts; start++) {
         for (let strand = 0; strand < config.strands; strand++) {
             ctx.beginPath();
             for (let step = 0; step < config.steps; step++) {
-                let phase = 360 * start / config.starts;
+                let phase = config.start_angle + 360 * start / config.starts;
                 let offset = config.width * strand / config.strands - config.width * 0.5;
                 let deg = config.turns * 360 * (step / config.steps);
                 deg += phase;
@@ -32,8 +47,8 @@ function draw(ctx, config) {
                 r += twisting * deg2rad(config.width) / (2 * Math.PI) * r;
                 deg += twisting * offset * config.twirl;
 
-                let x = 300 + Math.cos(deg2rad(deg)) * r;
-                let y = 300 + Math.sin(deg2rad(deg)) * r;
+                let x = canvas.width / 2 + Math.cos(deg2rad(deg)) * r;
+                let y = canvas.height / 2 + Math.sin(deg2rad(deg)) * r;
 
                 if (step === 0) {
                     ctx.moveTo(x, y);
@@ -47,6 +62,12 @@ function draw(ctx, config) {
             ctx.stroke();
         }
     }
+    console.timeEnd('draw');
 }
 
-draw(ctx, config);
+function randomize(){
+    randomize_config(config, config_limits);
+    draw(ctx, config);
+}
+
+randomize();
