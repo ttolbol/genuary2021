@@ -33,3 +33,7 @@ table.calendar td a {
 table.calendar td a:hover {
     text-shadow: 0 0 12px #FFFFFF, 0 0 8px #FFFFFF;
 }
+
+#canvas {
+    background: #000;
+}
