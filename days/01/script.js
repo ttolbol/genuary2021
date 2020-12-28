@@ -1,7 +1,11 @@
 // TRIPLE NESTED LOOP
-const canvas = document.getElementById('canvas');
+const img = document.getElementById('canvas');
+const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 const sqrt2 = Math.sqrt(2)
+
+canvas.width = 600;
+canvas.height = 600;
 
 // initialize config with default values
 let config = {
@@ -67,6 +71,7 @@ function draw(ctx, config) {
             ctx.stroke();
         }
     }
+    img.src = canvas.toDataURL();
 }
 
 function randomize(){
