@@ -21,11 +21,13 @@ class Eyes {
         this.canvas.width = Math.ceil(this.size);
         this.canvas.height = Math.ceil(this.size);
         this.ctx = this.canvas.getContext('2d');
-        this.look_dir = 0;
-        this.attention_target = 0.0;
-        this.attention = 0.0;
+        this.look_x_target = 0;
+        this.look_x = 0;
+        this.look_y_target = 0;
+        this.look_y = 0;
         this.awake = false;
         this.awake_time = 0;
+        this.next_blink = this.blink_period;
 
         this.id = id;
         this.events = events;
@@ -33,11 +35,17 @@ class Eyes {
     }
 
     update() {
-        if (Math.abs(this.attention_target - this.attention) > 0.01) {
-            this.attention += (this.attention_target - this.attention) * (1 - this.damping);
+        if (Math.abs(this.look_x_target - this.look_x) > 0.01) {
+            this.look_x += (this.look_x_target - this.look_x) * (1 - this.damping);
             this.rerender = true;
         } else {
-            this.attention = this.attention_target;
+            this.look_x = this.look_x_target;
+        }
+        if (Math.abs(this.look_y_target - this.look_y) > 0.01) {
+            this.look_y += (this.look_y_target - this.look_y) * (1 - this.damping);
+            this.rerender = true;
+        } else {
+            this.look_y = this.look_y_target;
         }
 
         if (Math.abs(this.openness_target - this.openness) > 0.01) {
@@ -48,8 +56,8 @@ class Eyes {
         }
 
         if (this.awake) {
-            let blink_chance = 1 / (60 * this.blink_period);
-            if (randfloat(0, 1) < blink_chance) {
+            this.next_blink -= 1 / 60;
+            if (this.next_blink < 0) {
                 this.blink();
             }
 
@@ -78,8 +86,8 @@ class Eyes {
         if (dist > this.attention_radius) {
             return false;
         }
-        let probability = this.awake ? this.notice_chance : this.wakeup_chance;
-        probability *= event.severity;
+        let probability = this.awake ? this.notice_chance : this.wakeup_chance * event.severity;
+        probability *= map_range(dist, 0, this.attention_radius, 1, 0);
         if (randfloat(0, 1) < probability){
             this.wake(event.x, event.y);
             return true;
@@ -88,29 +96,33 @@ class Eyes {
     }
 
     blink() {
+        this.next_blink = this.blink_period;
         this.openness = 0.0;
-        this.attention_target = 0.0;
-        this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.5});
+        this.look_x_target = 0;
+        this.look_y_target = 0;
+        this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.3});
     }
 
     wake(x, y) {
         if (!this.awake) {
-            this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 1.0});
+            this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.5});
             this.awake_time = 0;
             this.awake = true;
             this.openness_target = 1.0;
         }
-
-        this.attention_target = 1.0;
-        this.look_dir = Math.atan2(y - this.y, x - this.x);
+        
+        let dx = x - this.x;
+        let dy = y - this.y;
+        let m = Math.sqrt(dx ** 2 + dy ** 2);
+        this.look_x_target = dx / m;
+        this.look_y_target = dy / m;
     }
 
     sleep() {
         if (this.awake) {
-            this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.2});
+            this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.8});
         }
-
-        this.attention_target = 0.0;
+        
         this.openness_target = 0.0;
         this.awake = false;
     }
@@ -132,8 +144,8 @@ class Eyes {
         this.ctx.fill();
 
         // draw iris
-        let dx = Math.cos(this.look_dir) * (this.size - this.iris_size) * 0.5 * this.attention
-        let dy = Math.sin(this.look_dir) * (this.size - this.iris_size) * 0.5 * this.attention
+        let dx = this.look_x * (this.size - this.iris_size) * 0.5;
+        let dy = this.look_y * (this.size - this.iris_size) * 0.5;
         this.ctx.beginPath()
         this.ctx.arc(x + dx, y + dy, this.iris_size / 2, 0, Math.PI * 2);
         this.ctx.fillStyle = 'hsl(' + this.hue + ', 45%, 38%)';

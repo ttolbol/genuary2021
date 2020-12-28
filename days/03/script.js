@@ -7,16 +7,16 @@ let config = {
     size: 16,
     pupil_size: 4,
     iris_size: 9,
-    blink_period: 5,  // average time between blinks (seconds)
+    blink_period: 5,
     awake_duration: 10,
     x: 300,
     y: 300,
     hue: 218,
-    wakeup_chance: 0.05,
-    notice_chance: 0.3,
+    wakeup_chance: 0.035,
+    notice_chance: 0.8,
     damping: 0.95,
     blink_speed: 0.1,
-    attention_radius: 90
+    attention_radius: 600
 };
 
 let config_limits = {
@@ -24,6 +24,7 @@ let config_limits = {
     x: [32, 768, 'float'],
     y: [32, 568, 'float'],
     hue: [0, 360, 'float'],
+    blink_period: [2, 10, 'float'],
     awake_duration: [5, 20, 'float']
 };
 
@@ -65,7 +66,7 @@ function randomize(){
     set_random_seed(get_random_seed());
     eyes = [];
     events = {old: [], new: []};
-    while(eyes.length < 100){
+    while(eyes.length < 60){
         randomize_config(config, config_limits);
         let new_eye = new Eyes(config, eyes.length, events);
         let add = true;
@@ -80,6 +81,7 @@ function randomize(){
         }
         if (add) {
             eyes.push(new_eye);
+            new_eye.wake(randfloat(0, canvas.width), randfloat(0, canvas.height));
         }
     }
 }
