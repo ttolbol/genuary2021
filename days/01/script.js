@@ -1,10 +1,10 @@
 // TRIPLE NESTED LOOP
-
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const sqrt2 = Math.sqrt(2)
 
-config = {
+// initialize config with default values
+let config = {
     start_angle: 0,
     starts: 3,
     strands: 180,
@@ -17,7 +17,7 @@ config = {
     hue_variance: 150
 };
 
-config_limits = {
+let config_limits = {
     start_angle: [0, 360, 'float'],
     starts: [1, 6, 'int'],
     turns: [0, 5, 'float'],
@@ -28,12 +28,20 @@ config_limits = {
     hue_variance: [0, 360, 'float']
 };
 
+randomize_config(config, config_limits);
+
 function draw(ctx, config) {
-    console.time('draw');
+    ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    for (let start = 0; start < config.starts; start++) {
-        for (let strand = 0; strand < config.strands; strand++) {
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    let alpha = 10 / config.strands;
+    for (let strand = 0; strand < config.strands; strand++) {
+        let hue = (config.hue_start + config.hue_variance * (strand / config.strands)) % 360;
+        ctx.strokeStyle = 'hsla(' + hue + ', 100%, 50%, ' + alpha + ')'; // set strand color
+        for (let start = 0; start < config.starts; start++) {
             ctx.beginPath();
             for (let step = 0; step < config.steps; step++) {
                 let phase = config.start_angle + 360 * start / config.starts;
@@ -56,18 +64,15 @@ function draw(ctx, config) {
                     ctx.lineTo(x, y);
                 }
             }
-            let hue = (config.hue_start + config.hue_variance * (strand / config.strands)) % 360;
-            let alpha = 10 / config.strands;
-            ctx.strokeStyle = 'hsla(' + hue + ', 100%, 50%, ' + alpha + ')';
             ctx.stroke();
         }
     }
-    console.timeEnd('draw');
 }
 
 function randomize(){
+    set_random_seed(get_random_seed());
     randomize_config(config, config_limits);
     draw(ctx, config);
 }
 
-randomize();
+draw(ctx, config);
