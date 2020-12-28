@@ -2,8 +2,8 @@ class Eyes {
     constructor(config, id, events) {
         // copy attributes from configuration
         this.size = config.size;
-        this.pupil_size = config.pupil_size;
-        this.iris_size = config.iris_size;
+        this.pupil_size = config.pupil_size * this.size;
+        this.separation = this.size * 2;
         this.x = config.x;
         this.y = config.y;
         this.blink_period = config.blink_period;
@@ -18,8 +18,8 @@ class Eyes {
         this.openness_target = 0.0;
         this.openness = 0.0;
         this.canvas = document.createElement('canvas');
-        this.canvas.width = Math.ceil(this.size);
-        this.canvas.height = Math.ceil(this.size);
+        this.canvas.width = 1 + Math.ceil(this.size/2) * 2;
+        this.canvas.height = 1 + Math.ceil(this.size/2) * 2;
         this.ctx = this.canvas.getContext('2d');
         this.look_x_target = 0;
         this.look_x = 0;
@@ -105,7 +105,7 @@ class Eyes {
 
     wake(x, y) {
         if (!this.awake) {
-            this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.5});
+            this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.1});
             this.awake_time = 0;
             this.awake = true;
             this.openness_target = 1.0;
@@ -120,7 +120,7 @@ class Eyes {
 
     sleep() {
         if (this.awake) {
-            this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.8});
+            this.events.new.push({x: this.x, y: this.y, id: this.id, severity: 0.5});
         }
         
         this.openness_target = 0.0;
@@ -143,15 +143,9 @@ class Eyes {
         this.ctx.fillStyle = "#FFF";
         this.ctx.fill();
 
-        // draw iris
-        let dx = this.look_x * (this.size - this.iris_size) * 0.5;
-        let dy = this.look_y * (this.size - this.iris_size) * 0.5;
-        this.ctx.beginPath()
-        this.ctx.arc(x + dx, y + dy, this.iris_size / 2, 0, Math.PI * 2);
-        this.ctx.fillStyle = 'hsl(' + this.hue + ', 45%, 38%)';
-        this.ctx.fill();
-
         // draw pupil
+        let dx = this.look_x * (this.size - this.pupil_size) * 0.5;
+        let dy = this.look_y * (this.size - this.pupil_size) * 0.5;
         this.ctx.beginPath()
         this.ctx.arc(x + dx, y + dy, this.pupil_size / 2, 0, Math.PI * 2);
         this.ctx.fillStyle = "#000";
@@ -167,6 +161,8 @@ class Eyes {
         this.ctx.closePath();
         this.ctx.fill();
         this.ctx.restore();
+        this.ctx.strokeStyle = "#000";
+        this.ctx.stroke();
     }
 
     draw(ctx) {
@@ -177,6 +173,7 @@ class Eyes {
         if (this.openness < 0.01) {
             return;
         }
-        ctx.drawImage(this.canvas, this.x - this.size / 2, this.y - this.size / 2);
+        ctx.drawImage(this.canvas, this.x - (this.separation + this.size) / 2, this.y - this.size / 2);
+        ctx.drawImage(this.canvas, this.x + (this.separation + this.size) / 2, this.y - this.size / 2);
     }
 }
