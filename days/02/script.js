@@ -5,7 +5,7 @@ let arr = Array(50).fill(false);
 let config_cube = {hue: 0, alpha: 0.1, rounds: 10};
 let config_circle = {hue: 120, alpha: 0.1, rounds: 10};
 
-randomize();
+initialize();
 
 function draw_circle(ctx, x, y, r, config) {
     config = config ? config : {};
@@ -143,12 +143,16 @@ function draw(ctx, arr, yi) {
     }
 }
 
-function randomize() {
-    set_random_seed(get_random_seed());
+function initialize(){
     for (let i = 0; i < arr.length; i++) {
         arr[i] = chance.bool();
     }
     config_cube.hue = randint(0, 360)
     config_circle.hue = (config_cube.hue + 90) % 360;
     draw(ctx, arr);
+}
+
+function randomize() {
+    set_random_seed(get_random_seed());
+    initialize();
 }

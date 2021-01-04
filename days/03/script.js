@@ -32,7 +32,7 @@ let config_limits = {
 
 let eyes;
 let events;
-randomize();
+initialize();
 
 function draw() {
     ctx.fillStyle = '#FFF';
@@ -60,8 +60,7 @@ function draw() {
     window.requestAnimationFrame(draw);
 }
 
-function randomize(){
-    set_random_seed(get_random_seed());
+function initialize(){
     eyes = [];
     events = {old: [], new: []};
     let retries = 0;
@@ -84,6 +83,11 @@ function randomize(){
             retries++;
         }
     }
+}
+
+function randomize(){
+    set_random_seed(get_random_seed());
+    initialize();
 }
 
 draw();
