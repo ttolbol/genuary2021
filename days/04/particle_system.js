@@ -3,7 +3,6 @@ class ParticleSystem {
         // copy attributes from configuration
         this.x = config.x;
         this.y = config.y;
-        this.alive = true;
         this.mirror_x = Math.cos(config.mirror_angle);
         this.mirror_y = Math.sin(config.mirror_angle);
         this.lifetime = config.lifetime;
@@ -20,21 +19,12 @@ class ParticleSystem {
     }
 
     update() {
-        this.alive = false;
-        for (let i in this.particles) {
-            let particle = this.particles[i];
-            if (particle.alive) {
-                this.alive = true;
-                particle.update();
-            }
+        for (let particle of this.particles) {
+            particle.update();
         }
     }
 
     draw(ctx) {
-        if (!this.alive){
-            return;
-        }
-
         if (this.debug){
             ctx.beginPath();
             ctx.moveTo(this.x - this.mirror_x * 32, this.y - this.mirror_y * 32);
@@ -43,11 +33,8 @@ class ParticleSystem {
             ctx.stroke();
         }
 
-        for (let i in this.particles) {
-            let particle = this.particles[i];
-            if (particle.alive) {
-                particle.draw(ctx);
-            }
+        for (let particle of this.particles) {
+            particle.draw(ctx);
         }
     }
 
@@ -67,7 +54,6 @@ class Particle {
         this.y = parent.y;
         this.px = this.x;
         this.py = this.y;
-        this.alive = true;
         this.lifetime = parent.lifetime;
         this.damping = parent.damping;
         this.hue = (parent.hue + randfloat(-parent.hue_variance, parent.hue_variance)) % 360;
@@ -77,32 +63,22 @@ class Particle {
     }
 
     update() {
-        if (this.alive){
-            this.lifetime--;
-            if (this.lifetime <= 0){
-                this.alive = false;
-                return;
-            }
-            let vx = this.x - this.px;
-            let vy = this.y - this.py;
-            vx -= vx * this.damping;
-            vy -= vy * this.damping;
+        let vx = this.x - this.px;
+        let vy = this.y - this.py;
+        vx -= vx * this.damping;
+        vy -= vy * this.damping;
 
-            let ax = randfloat(-this.parent.acceleration, this.parent.acceleration);
-            let ay = randfloat(-this.parent.acceleration, this.parent.acceleration);
-            vx += ax;
-            vy += ay;
-            this.px = this.x;
-            this.py = this.y;
-            this.x += vx;
-            this.y += vy;
-        }
+        let ax = randfloat(-this.parent.acceleration, this.parent.acceleration);
+        let ay = randfloat(-this.parent.acceleration, this.parent.acceleration);
+        vx += ax;
+        vy += ay;
+        this.px = this.x;
+        this.py = this.y;
+        this.x += vx;
+        this.y += vy;
     }
 
     draw(ctx) {
-        if (!this.alive) {
-            return
-        }
         ctx.strokeStyle = 'hsl(' + this.hue + ', 75%, 60%)';
         // draw
         ctx.beginPath();
