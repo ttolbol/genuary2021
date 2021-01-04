@@ -12,12 +12,15 @@ let config = {
     lifetime: 60,
     damping: 0.2,
     mirror_angle: 0,
+    hue: 0,
+    hue_variance: 60
 };
 
 let config_limits = {
     n_particles: [5, 25, 'int'],
     acceleration: [0.5, 0.8, 'float'],
     damping: [0.1, 0.4, 'float'],
+    hue: [0, 360, 'int']
 };
 
 initialize();

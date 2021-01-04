@@ -10,6 +10,8 @@ class ParticleSystem {
         this.acceleration = config.acceleration;
         this.damping = config.damping;
         this.debug = !!config.debug;
+        this.hue = config.hue;
+        this.hue_variance = config.hue_variance;
 
         this.particles = new Array(config.n_particles);
         for (let i = 0; i < config.n_particles; i++) {
@@ -68,6 +70,10 @@ class Particle {
         this.alive = true;
         this.lifetime = parent.lifetime;
         this.damping = parent.damping;
+        this.hue = (parent.hue + randfloat(-parent.hue_variance, parent.hue_variance)) % 360;
+        if (this.hue < 0){
+            this.hue += 360;
+        }
     }
 
     update() {
@@ -97,11 +103,11 @@ class Particle {
         if (!this.alive) {
             return
         }
+        ctx.strokeStyle = 'hsl(' + this.hue + ', 75%, 60%)';
         // draw
         ctx.beginPath();
         ctx.moveTo(this.px, this.py);
         ctx.lineTo(this.x, this.y);
-        ctx.strokeStyle = '#FFF';
         ctx.stroke();
         // draw mirrored
         ctx.beginPath();
@@ -109,7 +115,6 @@ class Particle {
         let mirrored = this.parent.mirror(this.x, this.y);
         ctx.moveTo(mirrored_p.x, mirrored_p.y);
         ctx.lineTo(mirrored.x, mirrored.y);
-        ctx.strokeStyle = '#FFF';
         ctx.stroke();
     }
 }
