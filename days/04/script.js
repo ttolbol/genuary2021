@@ -11,14 +11,13 @@ let config = {
     acceleration: 1,
     lifetime: 60,
     damping: 0.2,
+    mirror_angle: 0,
 };
 
 let config_limits = {
-    x: [0, canvas.width, 'float'],
-    y: [0, canvas.height, 'float'],
     n_particles: [5, 25, 'int'],
     acceleration: [0.5, 0.8, 'float'],
-
+    damping: [0.1, 0.4, 'float'],
 };
 
 initialize();
@@ -35,9 +34,12 @@ function draw() {
         }
     }
 
+    ctx.save();
     for(const ps of particle_systems){
         ps.draw(ctx);
     }
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.restore();
 
     if (live_systems) {
         requestAnimationFrame(function () {
@@ -48,9 +50,15 @@ function draw() {
 
 function initialize(){
     particle_systems = new Array(25);
-    for (let i = 0; i < particle_systems.length; i++){
-        randomize_config(config, config_limits);
-        particle_systems[i] = new ParticleSystem(config);
+    for (let iy = 0; iy < 5; iy++) {
+        for (let ix = 0; ix < 5; ix++) {
+            randomize_config(config, config_limits);
+            config.x = canvas.width / 10 + ix * canvas.width / 5;
+            config.y = canvas.height / 10 + iy * canvas.height / 5;
+            let i = iy * 5 + ix;
+            config.mirror_angle = i * Math.PI / 2;
+            particle_systems[i] = new ParticleSystem(config);
+        }
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     draw();

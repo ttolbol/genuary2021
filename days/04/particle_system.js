@@ -9,6 +9,7 @@ class ParticleSystem {
         this.lifetime = config.lifetime;
         this.acceleration = config.acceleration;
         this.damping = config.damping;
+        this.debug = !!config.debug;
 
         this.particles = new Array(config.n_particles);
         for (let i = 0; i < config.n_particles; i++) {
@@ -31,12 +32,29 @@ class ParticleSystem {
         if (!this.alive){
             return;
         }
+
+        if (this.debug){
+            ctx.beginPath();
+            ctx.moveTo(this.x - this.mirror_x * 32, this.y - this.mirror_y * 32);
+            ctx.lineTo(this.x + this.mirror_x * 32, this.y + this.mirror_y * 32);
+            ctx.strokeStyle = '#00FFFF';
+            ctx.stroke();
+        }
+
         for (let i in this.particles) {
             let particle = this.particles[i];
             if (particle.alive) {
                 particle.draw(ctx);
             }
         }
+    }
+
+    mirror(x, y){
+        let a = {x: x - this.x, y: y - this.y};
+        let dot_product = a.x * this.mirror_x + a.y * this.mirror_y;
+        let a1 = {x: this.mirror_x * dot_product, y: this.mirror_y * dot_product};
+        let a2 = {x: a.x - a1.x, y: a.y - a1.y};
+        return {x: this.x + a1.x - a2.x, y: this.y + a1.y - a2.y};
     }
 }
 
@@ -79,9 +97,18 @@ class Particle {
         if (!this.alive) {
             return
         }
+        // draw
         ctx.beginPath();
         ctx.moveTo(this.px, this.py);
         ctx.lineTo(this.x, this.y);
+        ctx.strokeStyle = '#FFF';
+        ctx.stroke();
+        // draw mirrored
+        ctx.beginPath();
+        let mirrored_p = this.parent.mirror(this.px, this.py);
+        let mirrored = this.parent.mirror(this.x, this.y);
+        ctx.moveTo(mirrored_p.x, mirrored_p.y);
+        ctx.lineTo(mirrored.x, mirrored.y);
         ctx.strokeStyle = '#FFF';
         ctx.stroke();
     }
