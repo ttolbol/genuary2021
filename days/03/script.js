@@ -38,19 +38,15 @@ function draw() {
     ctx.fillStyle = '#FFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < eyes.length; i++){
-        let eye = eyes[i];
-        eye.update();
-        eye.draw(ctx);
-    }
-
     let n_awake = 0;
-    for (let i = 0; i < eyes.length; i++) {
-        let eye = eyes[i];
+    for (const eye of eyes){
+        eye.update();
         if (eye.awake){
             n_awake++;
         }
+        eye.draw(ctx);
     }
+
     while (n_awake < 5){
         let idx = randint(0, eyes.length-1);
         if (!eyes[idx].awake) {
