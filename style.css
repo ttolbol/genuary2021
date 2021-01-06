@@ -43,3 +43,7 @@ table.calendar td a:hover {
 .round_canvas {
     border-radius: 50%;
 }
+
+#c {
+    background: #FFF;
+}

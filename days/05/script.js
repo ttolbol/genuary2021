@@ -1,0 +1,1 @@
+const c=$("#c")[0].getContext("2d");let i=c.createImageData(600,600);i.data[1203]=255;let a=a=>!!i.data[a],d=()=>{c.putImageData(i,0,1),i=c.getImageData(0,0,600,600);for(let t=0;t<2400;t+=4)i.data[t+3]=255*(a(t+2399+2396*!t)^(a(t+2403)||a(t+2407)));requestAnimationFrame(d)};d();
